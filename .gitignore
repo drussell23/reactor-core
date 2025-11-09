@@ -26,7 +26,8 @@ env/
 ENV/
 
 # IDE
-.vscode/
+# Keep .vscode/ for C++ IntelliSense config
+# .vscode/
 .idea/
 *.swp
 *.swo
