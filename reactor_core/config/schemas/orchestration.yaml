@@ -1,0 +1,32 @@
+# Night Shift Pipeline Orchestration Configuration
+# All values support environment variable interpolation: ${VAR:-default}
+
+scheduling:
+  cron: ${NIGHTSHIFT_CRON:-0 2 * * 0}  # Sunday 2 AM
+  timezone: ${NIGHTSHIFT_TIMEZONE:-America/Los_Angeles}
+
+state:
+  state_file: ${NIGHTSHIFT_STATE_FILE:-~/.jarvis/training/pipeline_state.json}
+
+recovery:
+  max_retries: 3
+  retry_delay_seconds: 300
+  resume_on_failure: true
+
+notifications:
+  slack_webhook_url: ${NIGHTSHIFT_SLACK_WEBHOOK:-}
+  email_recipients: []
+  email_smtp_host: ${NIGHTSHIFT_SMTP_HOST:-}
+
+alerts:
+  alert_on_success: true
+  alert_on_failure: true
+  alert_on_gatekeeper_fail: true
+
+storage:
+  gcs_bucket: ${NIGHTSHIFT_GCS_BUCKET:-}
+  gcs_prefix: nightshift/models
+
+registry:
+  model_registry_path: ${NIGHTSHIFT_REGISTRY:-~/.jarvis/models/registry.json}
+  max_model_versions: 5

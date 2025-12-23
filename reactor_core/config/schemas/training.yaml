@@ -1,0 +1,49 @@
+# Night Shift Training Configuration
+# All values support environment variable interpolation: ${VAR:-default}
+
+model:
+  base_model: ${NIGHTSHIFT_BASE_MODEL:-meta-llama/Llama-3.2-3B}
+  model_revision: null
+  trust_remote_code: false
+
+lora:
+  use_lora: true
+  lora_rank: ${NIGHTSHIFT_LORA_RANK:-64}
+  lora_alpha: ${NIGHTSHIFT_LORA_ALPHA:-128}
+  lora_dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+
+qlora:
+  use_qlora: ${NIGHTSHIFT_USE_QLORA:-true}
+  bnb_4bit_compute_dtype: float16
+  bnb_4bit_quant_type: nf4
+  bnb_4bit_use_double_quant: true
+
+hyperparameters:
+  learning_rate: ${NIGHTSHIFT_LR:-2e-5}
+  num_epochs: ${NIGHTSHIFT_EPOCHS:-3}
+  per_device_batch_size: ${NIGHTSHIFT_TRAIN_BATCH_SIZE:-4}
+  gradient_accumulation_steps: 4
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  max_seq_length: ${NIGHTSHIFT_MAX_SEQ_LEN:-2048}
+
+checkpointing:
+  checkpoint_dir: ${NIGHTSHIFT_CHECKPOINT_DIR:-~/.jarvis/training/checkpoints}
+  save_steps: 500
+  eval_steps: 500
+  max_checkpoints: 3
+  resume_from_checkpoint: true
+
+output:
+  output_dir: ${NIGHTSHIFT_OUTPUT_DIR:-~/.jarvis/training/output}
+
+distributed:
+  use_fsdp: ${NIGHTSHIFT_USE_FSDP:-false}
+
+device: ${NIGHTSHIFT_DEVICE:-auto}

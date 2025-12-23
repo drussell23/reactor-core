@@ -1,0 +1,25 @@
+# Night Shift Data Ingestion Configuration
+# All values support environment variable interpolation: ${VAR:-default}
+
+sources:
+  jarvis_logs_dir: ${NIGHTSHIFT_JARVIS_LOGS:-~/.jarvis/logs}
+  jarvis_data_dir: ${NIGHTSHIFT_JARVIS_DATA:-~/.jarvis/data}
+
+processing:
+  batch_size: ${NIGHTSHIFT_BATCH_SIZE:-1000}
+  max_workers: ${NIGHTSHIFT_MAX_WORKERS:-4}
+  streaming_enabled: ${NIGHTSHIFT_STREAMING:-false}
+
+quality:
+  min_confidence: ${NIGHTSHIFT_MIN_CONFIDENCE:-0.7}
+  deduplicate: true
+  dedup_similarity_threshold: 0.95
+
+time_range:
+  lookback_days: ${NIGHTSHIFT_LOOKBACK_DAYS:-7}
+
+source_types:
+  ingest_telemetry: true
+  ingest_feedback: true
+  ingest_auth_records: true
+  ingest_raw_logs: true
