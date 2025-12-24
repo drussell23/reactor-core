@@ -6,6 +6,7 @@ Provides:
 - JARVIS Prime WebSocket/REST integration
 - Cross-repo event bridge for real-time sync
 - Experience streaming and transformation
+- Unified cost tracking across all repos (v10.0)
 """
 
 from reactor_core.integration.jarvis_connector import (
@@ -35,6 +36,17 @@ from reactor_core.integration.event_bridge import (
     create_event_bridge,
 )
 
+from reactor_core.integration.cost_bridge import (
+    CostBridge,
+    CostSummary,
+    get_cost_bridge,
+    initialize_cost_bridge,
+    shutdown_cost_bridge,
+    get_aggregated_costs,
+    emit_cost_event,
+    record_distillation_cost,
+)
+
 __all__ = [
     # JARVIS-AI-Agent
     "JARVISConnector",
@@ -57,4 +69,13 @@ __all__ = [
     "EventSource",
     "BridgeEventType",
     "create_event_bridge",
+    # Cost Bridge (v10.0)
+    "CostBridge",
+    "CostSummary",
+    "get_cost_bridge",
+    "initialize_cost_bridge",
+    "shutdown_cost_bridge",
+    "get_aggregated_costs",
+    "emit_cost_event",
+    "record_distillation_cost",
 ]

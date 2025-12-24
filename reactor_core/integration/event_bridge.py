@@ -73,6 +73,21 @@ class EventType(Enum):
     NEW_KNOWLEDGE = "new_knowledge"
     MODEL_UPDATED = "model_updated"
 
+    # Cost tracking events (v10.0)
+    COST_UPDATE = "cost_update"
+    COST_ALERT = "cost_alert"
+    COST_REPORT = "cost_report"
+    INFERENCE_METRICS = "inference_metrics"
+
+    # Infrastructure events (v10.0)
+    RESOURCE_CREATED = "resource_created"
+    RESOURCE_DESTROYED = "resource_destroyed"
+    ORPHAN_DETECTED = "orphan_detected"
+    ORPHAN_CLEANED = "orphan_cleaned"
+    ARTIFACT_CLEANED = "artifact_cleaned"
+    SQL_STOPPED = "sql_stopped"
+    SQL_STARTED = "sql_started"
+
 
 @dataclass
 class CrossRepoEvent:
