@@ -88,6 +88,15 @@ class EventType(Enum):
     SQL_STOPPED = "sql_stopped"
     SQL_STARTED = "sql_started"
 
+    # Safety events (v10.3 - Vision Safety Integration)
+    SAFETY_AUDIT = "safety_audit"           # Plan was audited for safety
+    SAFETY_BLOCKED = "safety_blocked"       # Action was blocked by safety
+    SAFETY_CONFIRMED = "safety_confirmed"   # User confirmed risky action
+    SAFETY_DENIED = "safety_denied"         # User denied risky action
+    KILL_SWITCH_TRIGGERED = "kill_switch_triggered"  # Dead man's switch activated
+    VISUAL_CLICK_PREVIEW = "visual_click_preview"    # Click preview shown
+    VISUAL_CLICK_VETOED = "visual_click_vetoed"      # Click was vetoed during preview
+
 
 @dataclass
 class CrossRepoEvent:
@@ -583,6 +592,115 @@ class EventBridge:
                 "loss": loss,
                 "metrics": metrics,
             },
+        )
+
+    # =========================================================================
+    # Safety Event Convenience Methods (v10.3 - Vision Safety Integration)
+    # =========================================================================
+
+    async def emit_safety_audit(
+        self,
+        goal: str,
+        plan_steps: int,
+        verdict: str,
+        risk_level: str,
+        risky_steps: List[Dict[str, Any]],
+        confirmation_required: bool,
+    ) -> bool:
+        """Emit a safety audit event when a plan is audited."""
+        return await self.publish(
+            EventType.SAFETY_AUDIT,
+            {
+                "goal": goal,
+                "plan_steps": plan_steps,
+                "verdict": verdict,
+                "risk_level": risk_level,
+                "risky_steps": risky_steps,
+                "confirmation_required": confirmation_required,
+            },
+            priority=2,  # High priority for training
+        )
+
+    async def emit_safety_blocked(
+        self,
+        action: str,
+        reason: str,
+        safety_tier: str,
+        auto_blocked: bool = True,
+    ) -> bool:
+        """Emit when an action is blocked by safety systems."""
+        return await self.publish(
+            EventType.SAFETY_BLOCKED,
+            {
+                "action": action,
+                "reason": reason,
+                "safety_tier": safety_tier,
+                "auto_blocked": auto_blocked,
+            },
+            priority=1,  # Highest priority
+        )
+
+    async def emit_safety_confirmation(
+        self,
+        action: str,
+        risk_level: str,
+        confirmed: bool,
+        confirmation_method: str,  # "voice", "text", "timeout"
+        user_response: Optional[str] = None,
+    ) -> bool:
+        """Emit when user confirms or denies a risky action."""
+        event_type = EventType.SAFETY_CONFIRMED if confirmed else EventType.SAFETY_DENIED
+        return await self.publish(
+            event_type,
+            {
+                "action": action,
+                "risk_level": risk_level,
+                "confirmed": confirmed,
+                "confirmation_method": confirmation_method,
+                "user_response": user_response,
+            },
+            priority=2,
+        )
+
+    async def emit_kill_switch_triggered(
+        self,
+        trigger_method: str,  # "mouse_corner", "voice", "keyboard"
+        halted_action: Optional[str] = None,
+        response_time_ms: float = 0.0,
+    ) -> bool:
+        """Emit when the dead man's switch is triggered."""
+        return await self.publish(
+            EventType.KILL_SWITCH_TRIGGERED,
+            {
+                "trigger_method": trigger_method,
+                "halted_action": halted_action,
+                "response_time_ms": response_time_ms,
+            },
+            priority=1,  # Highest priority
+        )
+
+    async def emit_visual_click_event(
+        self,
+        x: int,
+        y: int,
+        button: str,
+        vetoed: bool,
+        preview_duration_ms: float,
+        veto_reason: Optional[str] = None,
+    ) -> bool:
+        """Emit visual click preview or veto event."""
+        event_type = EventType.VISUAL_CLICK_VETOED if vetoed else EventType.VISUAL_CLICK_PREVIEW
+        return await self.publish(
+            event_type,
+            {
+                "x": x,
+                "y": y,
+                "button": button,
+                "vetoed": vetoed,
+                "preview_duration_ms": preview_duration_ms,
+                "veto_reason": veto_reason,
+            },
+            priority=3,
         )
 
 
