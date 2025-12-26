@@ -7,6 +7,7 @@ Provides:
 - Cross-repo event bridge for real-time sync
 - Experience streaming and transformation
 - Unified cost tracking across all repos (v10.0)
+- Computer Use optimization tracking (v10.1)
 """
 
 from reactor_core.integration.jarvis_connector import (
@@ -47,6 +48,14 @@ from reactor_core.integration.cost_bridge import (
     record_distillation_cost,
 )
 
+from reactor_core.integration.computer_use_connector import (
+    ComputerUseConnector,
+    ComputerUseConnectorConfig,
+    ComputerUseEvent,
+    ComputerUseEventType,
+    ActionType,
+)
+
 __all__ = [
     # JARVIS-AI-Agent
     "JARVISConnector",
@@ -78,4 +87,10 @@ __all__ = [
     "get_aggregated_costs",
     "emit_cost_event",
     "record_distillation_cost",
+    # Computer Use Bridge (v10.1)
+    "ComputerUseConnector",
+    "ComputerUseConnectorConfig",
+    "ComputerUseEvent",
+    "ComputerUseEventType",
+    "ActionType",
 ]
