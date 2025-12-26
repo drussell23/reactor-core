@@ -97,6 +97,14 @@ class EventType(Enum):
     VISUAL_CLICK_PREVIEW = "visual_click_preview"    # Click preview shown
     VISUAL_CLICK_VETOED = "visual_click_vetoed"      # Click was vetoed during preview
 
+    # Repository Intelligence events (v11.0 - Codebase Brain)
+    REPO_MAP_GENERATED = "repo_map_generated"           # Repository map was generated
+    REPO_MAP_CACHED = "repo_map_cached"                 # Repository map was cached
+    REPO_ANALYSIS_COMPLETE = "repo_analysis_complete"   # Cross-repo analysis finished
+    REPO_SYMBOL_FOUND = "repo_symbol_found"             # Symbol was located
+    REPO_DEPENDENCY_DETECTED = "repo_dependency_detected"  # New dependency detected
+    REPO_CONTEXT_ENRICHED = "repo_context_enriched"     # Context was enriched with repo info
+
 
 @dataclass
 class CrossRepoEvent:
