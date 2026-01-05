@@ -1125,3 +1125,75 @@ __all__ = [
     "update_jarvis_heartbeat",
     "update_jprime_heartbeat",
 ]
+
+
+# =============================================================================
+# MAIN ENTRY POINT - Direct Execution Support
+# =============================================================================
+
+async def _run_orchestrator_main() -> None:
+    """
+    Run the Trinity Orchestrator as a standalone service.
+
+    This enables direct execution: python trinity_orchestrator.py
+
+    The orchestrator will:
+    1. Initialize and start heartbeat broadcasting
+    2. Listen for commands from other Trinity components
+    3. Run until interrupted (SIGTERM/SIGINT)
+    """
+    import signal
+
+    # Configure logging for standalone mode
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+        datefmt="%H:%M:%S",
+    )
+
+    logger.info("=" * 60)
+    logger.info("Reactor-Core Trinity Orchestrator (Nerves) Starting...")
+    logger.info("=" * 60)
+
+    # Initialize orchestrator
+    orchestrator = await initialize_orchestrator()
+
+    if orchestrator.is_running():
+        logger.info("✅ Trinity Orchestrator running")
+        logger.info(f"   PID: {os.getpid()}")
+        logger.info(f"   Component: reactor_core (Nerves)")
+        logger.info(f"   Heartbeat: ~/.jarvis/trinity/components/reactor_core.json")
+    else:
+        logger.error("❌ Failed to start Trinity Orchestrator")
+        return
+
+    # Set up graceful shutdown
+    stop_event = asyncio.Event()
+
+    def signal_handler(signum, frame):
+        logger.info(f"\n📛 Received signal {signum}, initiating shutdown...")
+        stop_event.set()
+
+    # Register signal handlers
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+
+    logger.info("")
+    logger.info("🎯 Orchestrator ready. Waiting for Trinity commands...")
+    logger.info("   Press Ctrl+C to stop")
+    logger.info("")
+
+    # Run until stopped
+    try:
+        await stop_event.wait()
+    except asyncio.CancelledError:
+        pass
+
+    # Shutdown
+    logger.info("🛑 Shutting down Trinity Orchestrator...")
+    await shutdown_orchestrator()
+    logger.info("✅ Orchestrator shutdown complete")
+
+
+if __name__ == "__main__":
+    asyncio.run(_run_orchestrator_main())
