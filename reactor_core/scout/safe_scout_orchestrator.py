@@ -88,7 +88,11 @@ class ScoutProgress:
 
 @dataclass
 class ScoutConfig:
-    """Configuration for Safe Scout Orchestrator."""
+    """Configuration for Safe Scout Orchestrator.
+
+    v2.0: Added parameter aliasing for robustness. Both `url_concurrency` and
+    `max_concurrent_requests` are accepted for controlling concurrency.
+    """
     # Work directory
     work_dir: Path = field(
         default_factory=lambda: Path(os.getenv(
@@ -105,11 +109,19 @@ class ScoutConfig:
         default_factory=lambda: int(os.getenv("NIGHTSHIFT_SCOUT_MAX_PAGES", "10"))
     )
 
-    # Concurrency
+    # Concurrency (url_concurrency is the canonical name)
     url_concurrency: int = field(
         default_factory=lambda: int(os.getenv("NIGHTSHIFT_SCOUT_CONCURRENCY", "5"))
     )
+    # Alias for url_concurrency - if set, overrides url_concurrency
+    max_concurrent_requests: Optional[int] = None
     synthesis_concurrency: int = 3
+
+    def __post_init__(self) -> None:
+        """Handle parameter aliasing and validation."""
+        # max_concurrent_requests is an alias for url_concurrency
+        if self.max_concurrent_requests is not None:
+            self.url_concurrency = self.max_concurrent_requests
 
     # Timeouts
     page_timeout_seconds: int = 30
