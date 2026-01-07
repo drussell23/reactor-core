@@ -198,15 +198,76 @@ def read_json_safe(
 # CONSTANTS
 # =============================================================================
 
-TRINITY_DIR = Path.home() / ".jarvis" / "trinity"
+# =============================================================================
+# v79.0: UNIFIED CONFIGURATION - Zero Hardcoding
+# =============================================================================
+#
+# All configuration now sourced from the unified TrinityConfig system.
+# This ensures consistency across all Trinity repos (JARVIS, Prime, Reactor Core).
+# =============================================================================
+
+# Try to import unified config, fall back to local env vars if not available
+try:
+    import sys
+    # Add JARVIS path to allow cross-repo imports
+    _jarvis_path = Path.home() / "Documents" / "repos" / "JARVIS-AI-Agent"
+    if str(_jarvis_path) not in sys.path:
+        sys.path.insert(0, str(_jarvis_path))
+
+    from backend.core.trinity_config import (
+        get_config as _get_trinity_config,
+        sleep_with_jitter,
+        get_retry_delay,
+        TrinityConfig,
+    )
+    _UNIFIED_CONFIG = True
+    logger.debug("[Trinity] Using unified TrinityConfig")
+except ImportError:
+    _UNIFIED_CONFIG = False
+    _get_trinity_config = None
+    logger.debug("[Trinity] Unified config not available, using local defaults")
+
+
+def _get_config_value(attr_path: str, default: Any) -> Any:
+    """Get configuration value with fallback to default."""
+    if not _UNIFIED_CONFIG or _get_trinity_config is None:
+        return default
+    try:
+        config = _get_trinity_config()
+        parts = attr_path.split(".")
+        value = config
+        for part in parts:
+            value = getattr(value, part)
+        return value
+    except (AttributeError, TypeError):
+        return default
+
+
+# Directories - all configurable via environment or unified config
+TRINITY_DIR = Path(os.getenv(
+    "TRINITY_DIR",
+    str(_get_config_value("trinity_dir", Path.home() / ".jarvis" / "trinity"))
+))
 ORCHESTRATOR_STATE_FILE = TRINITY_DIR / "orchestrator_state.json"
 COMPONENTS_DIR = TRINITY_DIR / "components"
 
-# Health thresholds
-HEARTBEAT_TIMEOUT = 15.0  # seconds
-HEALTH_CHECK_INTERVAL = 5.0  # seconds
-CIRCUIT_BREAKER_THRESHOLD = 3  # failures before opening
-CIRCUIT_BREAKER_RESET = 30.0  # seconds to reset
+# Health thresholds - all configurable
+HEARTBEAT_TIMEOUT = float(os.getenv(
+    "TRINITY_HEARTBEAT_TIMEOUT",
+    str(_get_config_value("health.heartbeat_timeout", 15.0))
+))
+HEALTH_CHECK_INTERVAL = float(os.getenv(
+    "TRINITY_HEALTH_CHECK_INTERVAL",
+    str(_get_config_value("health.health_check_interval", 5.0))
+))
+CIRCUIT_BREAKER_THRESHOLD = int(os.getenv(
+    "TRINITY_CIRCUIT_BREAKER_THRESHOLD",
+    str(_get_config_value("circuit_breaker.failure_threshold", 3))
+))
+CIRCUIT_BREAKER_RESET = float(os.getenv(
+    "TRINITY_CIRCUIT_BREAKER_RESET",
+    str(_get_config_value("circuit_breaker.timeout_seconds", 30.0))
+))
 
 
 # =============================================================================
@@ -436,6 +497,8 @@ class TrinityOrchestrator:
         # v75.0: Dead Letter Queue for failed/expired commands
         self._dead_letter_queue: deque = deque(maxlen=500)
         self._command_timeout_task: Optional[asyncio.Task] = None
+        # v79.0: DLQ auto-retry task
+        self._dlq_auto_retry_task: Optional[asyncio.Task] = None
 
         logger.info("[Trinity] Orchestrator initialized")
 
@@ -460,6 +523,8 @@ class TrinityOrchestrator:
             self._self_heartbeat_task = asyncio.create_task(self._self_heartbeat_loop())
             # v75.0: Start command timeout monitoring task
             self._command_timeout_task = asyncio.create_task(self._command_timeout_loop())
+            # v79.0: Start DLQ auto-retry task
+            self._dlq_auto_retry_task = asyncio.create_task(self._dlq_auto_retry_loop())
 
             self._running = True
             logger.info("[Trinity] Orchestrator started")
@@ -480,6 +545,7 @@ class TrinityOrchestrator:
             self._state_reconciler_task,
             self._self_heartbeat_task,  # v72.0
             self._command_timeout_task,  # v75.0
+            self._dlq_auto_retry_task,  # v79.0
         ]:
             if task:
                 task.cancel()
@@ -923,9 +989,12 @@ class TrinityOrchestrator:
                     except ValueError:
                         return False
 
+                # Track retry count
+                retry_count = entry.get("retry_count", 0) + 1
+
                 # Create new pending command
                 new_pending = PendingCommand(
-                    id=f"{command_id}-retry-{int(time.time())}",
+                    id=f"{command_id}-retry-{retry_count}-{int(time.time())}",
                     intent=entry["intent"],
                     payload=entry["payload"],
                     target=target,
@@ -939,10 +1008,156 @@ class TrinityOrchestrator:
                     (new_pending.priority, new_pending.created_at, new_pending)
                 )
 
-                logger.info(f"[Trinity] Retrying command {command_id} from DLQ")
+                logger.info(f"[Trinity] Retrying command {command_id} from DLQ (attempt {retry_count})")
                 return True
 
         return False
+
+    # =========================================================================
+    # v79.0: DEAD LETTER QUEUE AUTO-RETRY WITH EXPONENTIAL BACKOFF
+    # =========================================================================
+
+    async def _dlq_auto_retry_loop(self) -> None:
+        """
+        v79.0: Automatically retry commands from the dead letter queue.
+
+        Features:
+            - Exponential backoff between retries
+            - Maximum retry attempts per command
+            - Jitter to prevent thundering herd
+            - Persists DLQ to disk for crash recovery
+            - Prunes old entries that exceed max age
+        """
+        # Get configuration
+        dlq_retry_interval = float(os.getenv("TRINITY_DLQ_RETRY_INTERVAL", "60.0"))
+        dlq_max_retries = int(os.getenv("TRINITY_DLQ_MAX_RETRIES", "3"))
+        dlq_max_age_hours = float(os.getenv("TRINITY_DLQ_MAX_AGE_HOURS", "24.0"))
+        dlq_persist = os.getenv("TRINITY_DLQ_PERSIST", "true").lower() == "true"
+        dlq_file = TRINITY_DIR / "dlq" / "dead_letter_queue.json"
+
+        # Ensure DLQ directory exists
+        dlq_file.parent.mkdir(parents=True, exist_ok=True)
+
+        # Load persisted DLQ on startup
+        if dlq_persist and dlq_file.exists():
+            try:
+                persisted = read_json_safe(dlq_file, default={"entries": []})
+                for entry in persisted.get("entries", []):
+                    self._dead_letter_queue.append(entry)
+                logger.info(f"[Trinity DLQ] Loaded {len(persisted.get('entries', []))} entries from disk")
+            except Exception as e:
+                logger.warning(f"[Trinity DLQ] Failed to load persisted queue: {e}")
+
+        while not self._shutdown_event.is_set():
+            try:
+                # Add jitter to prevent thundering herd
+                jitter = dlq_retry_interval * 0.1 * (0.5 + 0.5 * (time.time() % 1))
+                await asyncio.sleep(dlq_retry_interval + jitter)
+
+                if not self._dead_letter_queue:
+                    continue
+
+                now = time.time()
+                max_age_seconds = dlq_max_age_hours * 3600
+                entries_to_retry = []
+                entries_to_prune = []
+
+                for entry in list(self._dead_letter_queue):
+                    age = now - entry.get("failed_at", now)
+                    retry_count = entry.get("retry_count", 0)
+
+                    # Prune old entries
+                    if age > max_age_seconds:
+                        entries_to_prune.append(entry)
+                        logger.debug(
+                            f"[Trinity DLQ] Pruning expired entry {entry['command_id']} "
+                            f"(age: {age/3600:.1f}h > {dlq_max_age_hours}h)"
+                        )
+                        continue
+
+                    # Skip if max retries exceeded
+                    if retry_count >= dlq_max_retries:
+                        entries_to_prune.append(entry)
+                        logger.warning(
+                            f"[Trinity DLQ] Abandoning {entry['command_id']} "
+                            f"after {retry_count} retries"
+                        )
+                        continue
+
+                    # Calculate backoff delay
+                    backoff_delay = (2 ** retry_count) * 10  # 10s, 20s, 40s...
+                    time_since_failure = now - entry.get("failed_at", now)
+
+                    # Ready for retry if enough time has passed
+                    if time_since_failure >= backoff_delay:
+                        entries_to_retry.append(entry)
+
+                # Prune expired/abandoned entries
+                for entry in entries_to_prune:
+                    try:
+                        self._dead_letter_queue.remove(entry)
+                    except ValueError:
+                        pass
+
+                # Retry eligible entries
+                for entry in entries_to_retry:
+                    try:
+                        # Update retry count
+                        entry["retry_count"] = entry.get("retry_count", 0) + 1
+                        entry["last_retry_at"] = now
+
+                        # Attempt retry
+                        command_id = entry["command_id"]
+                        success = self.retry_from_dlq(command_id)
+
+                        if success:
+                            logger.info(
+                                f"[Trinity DLQ] Auto-retried {command_id} "
+                                f"(attempt {entry['retry_count']})"
+                            )
+                        else:
+                            # Re-add to queue for next attempt
+                            entry["failed_at"] = now
+                            self._dead_letter_queue.append(entry)
+                            logger.warning(
+                                f"[Trinity DLQ] Retry failed for {command_id}"
+                            )
+
+                    except Exception as e:
+                        logger.warning(f"[Trinity DLQ] Retry error for {entry.get('command_id')}: {e}")
+                        # Re-add to queue
+                        entry["failed_at"] = now
+                        self._dead_letter_queue.append(entry)
+
+                # Persist DLQ to disk
+                if dlq_persist:
+                    try:
+                        dlq_data = {
+                            "timestamp": now,
+                            "entries": list(self._dead_letter_queue),
+                        }
+                        write_json_atomic(dlq_file, dlq_data)
+                    except Exception as e:
+                        logger.debug(f"[Trinity DLQ] Failed to persist: {e}")
+
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.error(f"[Trinity DLQ] Auto-retry loop error: {e}")
+                await asyncio.sleep(10.0)
+
+        # Final persist on shutdown
+        if dlq_persist:
+            try:
+                dlq_data = {
+                    "timestamp": time.time(),
+                    "entries": list(self._dead_letter_queue),
+                    "shutdown": True,
+                }
+                write_json_atomic(dlq_file, dlq_data)
+                logger.info(f"[Trinity DLQ] Persisted {len(self._dead_letter_queue)} entries on shutdown")
+            except Exception as e:
+                logger.warning(f"[Trinity DLQ] Failed to persist on shutdown: {e}")
 
     async def _execute_command(self, pending: PendingCommand) -> bool:
         """
