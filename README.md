@@ -1,45 +1,259 @@
 # Reactor Core
 
-**An AI/ML Training Engine with Cross-Repository Event Streaming & Safety Integration**
+**An Advanced AI/ML Training & Serving Engine for AGI OS**
 
-Reactor Core is a hybrid ML training framework that combines:
-- High-performance C++ ML engine (MLForge)
-- Python-first API for PyTorch, LoRA, DPO, FSDP
-- GCP Spot VM resilience with auto-checkpointing
-- Environment-aware compute (M1 local vs GCP remote)
-- **Real-time event streaming** across JARVIS-AI-Agent, JARVIS Prime, and Reactor Core
-- **Vision safety integration** with comprehensive audit trails and kill switch mechanisms
+Reactor Core is the "nervous system" of the JARVIS AGI ecosystem, providing enterprise-grade ML training, model serving, and real-time event coordination across distributed AI systems.
 
-## Architecture
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+---
+
+## 🚀 What is Reactor Core?
+
+Reactor Core is a production-grade ML infrastructure combining:
+
+- **Advanced Training Methods**: DPO, RLHF, Constitutional AI, Curriculum Learning
+- **Model Serving**: Hot-reload model server with multi-backend support (vLLM, llama.cpp, MLX)
+- **Async Infrastructure**: Circuit breakers, backpressure, bulkheads, dead letter queues
+- **API Platform**: FastAPI server with telemetry, scheduling, model registry, health monitoring
+- **Trinity Orchestration**: Multi-repo coordination with heartbeat monitoring and state sync
+- **Event Streaming**: Real-time WebSocket/Redis pub-sub across JARVIS ecosystem
+- **GCP Integration**: Spot VM resilience, Cloud SQL storage, auto-checkpointing
+- **MLForge C++ Core**: High-performance ML primitives (optional submodule)
+
+---
+
+## 📋 Table of Contents
+
+- [Architecture](#architecture)
+- [Key Features](#key-features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Advanced Features](#advanced-features)
+  - [Advanced Training Methods (v76.0)](#advanced-training-methods-v760)
+  - [Async Infrastructure (v76.1)](#async-infrastructure-v761)
+  - [API Server & Telemetry (v77.0)](#api-server--telemetry-v770)
+  - [Model Serving & Hot Reload (v77.1)](#model-serving--hot-reload-v771)
+  - [Trinity Orchestrator (v75.0)](#trinity-orchestrator-v750)
+- [Integration Architecture](#integration-architecture)
+- [API Documentation](#api-documentation)
+- [Configuration](#configuration)
+- [Development](#development)
+- [Version History](#version-history)
+- [Links](#links)
+
+---
+
+## 🏗️ Architecture
 
 ```
-Reactor Core
-├── MLForge C++ Core (submodule)
-│   └── High-performance ML primitives
-└── Python Layer
-    ├── training/       # LoRA, DPO, FSDP training
-    ├── data/           # Data loading & preprocessing
-    ├── eval/           # Model evaluation
-    ├── serving/        # Model serving utilities
-    ├── gcp/            # GCP Spot VM integration
-    ├── integration/    # Cross-repo event streaming (NEW)
-    │   ├── event_bridge.py       # Real-time event synchronization
-    │   ├── jarvis_connector.py   # JARVIS-AI-Agent integration
-    │   ├── prime_connector.py    # JARVIS Prime integration
-    │   └── cost_bridge.py        # Unified cost tracking
-    ├── api/            # REST API server (NEW)
-    │   └── server.py             # FastAPI endpoints for JARVIS
-    └── utils/          # Common utilities
+┌─────────────────────────────────────────────────────────────────────┐
+│                        REACTOR CORE v77.1                            │
+│                    (AGI OS Nervous System)                           │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │                   UNIFIED API SERVER (v77.0)                  │   │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌──────────────────────┐  │   │
+│  │  │ Telemetry   │  │  Night      │  │  Model               │  │   │
+│  │  │ Collector   │  │  Scheduler  │  │  Registry            │  │   │
+│  │  └─────────────┘  └─────────────┘  └──────────────────────┘  │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │                HOT-RELOAD MODEL SERVER (v77.1)                │   │
+│  │  • Multi-backend support (vLLM, llama.cpp, MLX, Transformers)│   │
+│  │  • Zero-downtime model swaps                                  │   │
+│  │  • LRU cache + semantic response caching                      │   │
+│  │  • Priority request queue                                     │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │            ADVANCED TRAINING ENGINE (v76.0)                   │   │
+│  │                                                                │   │
+│  │   Experience Buffer → Data Selector → Training Router         │   │
+│  │                               │                                │   │
+│  │       ┌───────────────────────┼───────────────────────┐        │   │
+│  │       │                       │                       │        │   │
+│  │       ▼                       ▼                       ▼        │   │
+│  │   DPO Trainer          RLHF Pipeline        Constitutional AI │   │
+│  │   • Preference         • PPO Algorithm       • Self-supervised│   │
+│  │     Learning           • Reward Modeling     • Safety         │   │
+│  │   • Memory Efficient   • Value Functions     • Alignment      │   │
+│  │                                                                │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │           ASYNC INFRASTRUCTURE (v76.1)                        │   │
+│  │  • CircuitBreaker    • Backpressure    • DeadLetterQueue     │   │
+│  │  • Bulkhead          • HealthMonitor   • AdaptiveRateLimiter  │   │
+│  │  • TimeoutPolicy     • MetricsCollector • AsyncRetry          │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │              TRINITY ORCHESTRATOR (v75.0)                     │   │
+│  │  • Multi-repo heartbeat monitoring                            │   │
+│  │  • Command routing with load balancing                        │   │
+│  │  • State reconciliation                                       │   │
+│  │  • Dead Letter Queue for failed commands                      │   │
+│  │  • Atomic file I/O (v73.0)                                    │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐   │
+│  │                EVENT STREAMING (v10.3)                        │   │
+│  │  • WebSocket real-time events                                 │   │
+│  │  • Redis pub/sub (optional)                                   │   │
+│  │  • Safety audit trail                                         │   │
+│  │  • Cost tracking & budget alerts                              │   │
+│  └──────────────────────────────────────────────────────────────┘   │
+│                                                                      │
+│         ▼                       ▼                      ▼             │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐      │
+│  │  MLForge C++ │      │  Cloud SQL   │      │ GCP Storage  │      │
+│  │   (Optional) │      │  (Events DB) │      │(Checkpoints) │      │
+│  └──────────────┘      └──────────────┘      └──────────────┘      │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-## Installation
+### Project Structure
+
+```
+reactor-core/
+├── reactor_core/
+│   ├── training/              # Advanced training methods
+│   │   ├── advanced_training.py   # DPO, RLHF, Constitutional AI (2,899 lines)
+│   │   ├── unified_pipeline.py    # End-to-end training orchestration
+│   │   ├── trainer.py             # Base trainer class
+│   │   └── lora.py                # LoRA/QLoRA implementations
+│   │
+│   ├── serving/               # Model serving infrastructure
+│   │   ├── model_server.py        # Hot-reload model server (1,545 lines)
+│   │   └── inference_engine.py    # Multi-backend inference (1,891 lines)
+│   │
+│   ├── api/                   # REST API server
+│   │   ├── server.py              # FastAPI endpoints (2,252 lines)
+│   │   ├── telemetry.py           # Metrics & observability (1,128 lines)
+│   │   ├── scheduler.py           # Night Shift scheduler (1,030 lines)
+│   │   ├── model_registry.py      # Model versioning (1,301 lines)
+│   │   └── health_aggregator.py   # Health monitoring (999 lines)
+│   │
+│   ├── orchestration/         # Trinity coordination
+│   │   └── trinity_orchestrator.py # Multi-repo orchestrator
+│   │
+│   ├── utils/                 # Core utilities
+│   │   ├── async_helpers.py       # Async patterns (1,746 lines)
+│   │   └── dependencies.py        # Dependency injection (913 lines)
+│   │
+│   ├── integration/           # Cross-repo integration
+│   │   ├── event_bridge.py        # Event streaming
+│   │   ├── cost_bridge.py         # Cost tracking
+│   │   ├── jarvis_connector.py    # JARVIS integration
+│   │   └── prime_connector.py     # Prime integration
+│   │
+│   ├── eval/                  # Model evaluation
+│   │   └── advanced_evaluation.py # Comprehensive eval suite (1,536 lines)
+│   │
+│   ├── data/                  # Data loading & preprocessing
+│   ├── gcp/                   # GCP Spot VM support
+│   └── config/                # Configuration management
+│
+├── run_supervisor.py          # AGI OS unified supervisor (1,635 lines)
+├── mlforge/                   # C++ ML core (submodule)
+├── docker/                    # Docker configurations
+├── scripts/                   # Utility scripts
+└── tests/                     # Test suite
+
+Total: ~18,996+ lines of production code added in v75.0-v77.1
+```
+
+---
+
+## ⭐ Key Features
+
+### 🧠 Advanced Training Methods (v76.0)
+
+- **DPO (Direct Preference Optimization)**: Preference learning without reward models
+- **RLHF (Reinforcement Learning from Human Feedback)**: Full PPO pipeline
+- **Constitutional AI**: Self-supervised safety alignment
+- **Curriculum Learning**: Progressive difficulty scheduling
+- **Memory Management**: Dynamic batch sizing, gradient checkpointing, CPU offloading
+- **FSDP Support**: Fully Sharded Data Parallel for large models
+- **Experience Replay**: Priority-based sampling from interaction logs
+
+### ⚡ Async Infrastructure (v76.1)
+
+- **CircuitBreaker**: Automatic failure detection and recovery
+- **Backpressure**: Adaptive load management with queue shedding
+- **Bulkhead**: Failure isolation between components
+- **DeadLetterQueue**: Failed operation tracking and replay
+- **HealthMonitor**: Real-time component health tracking
+- **AdaptiveRateLimiter**: Dynamic rate limiting based on success rates
+- **TimeoutPolicy**: Configurable timeouts with fallback strategies
+- **MetricsCollector**: Comprehensive observability
+
+### 🌐 API Server & Telemetry (v77.0)
+
+- **FastAPI Server**: Production-grade REST API with auto-docs
+- **Telemetry Collector**: Real-time metrics ingestion with WebSocket streaming
+- **Night Shift Scheduler**: Automated training during off-peak hours
+- **Model Registry**: Version management, A/B testing, rollback support
+- **Health Aggregator**: Multi-service health dashboard
+- **Cost Tracking**: Budget alerts and spend analytics
+- **WebSocket Events**: Real-time training progress streaming
+
+### 🔥 Model Serving & Hot Reload (v77.1)
+
+- **Hot-Reload**: Zero-downtime model updates via file watcher
+- **Multi-Backend Support**: vLLM, llama.cpp, MLX, Transformers
+- **LRU Model Cache**: Memory-aware model eviction
+- **Priority Queue**: Request prioritization for SLA compliance
+- **Semantic Caching**: Hash-based response deduplication
+- **Circuit Breaker**: Backend failure protection
+- **Async Loading**: Non-blocking model initialization
+- **Version Management**: Seamless model version switching
+
+### 🎯 Trinity Orchestrator (v75.0)
+
+- **Multi-Repo Coordination**: Heartbeat monitoring across JARVIS, Prime, Reactor
+- **Command Routing**: Intelligent load balancing with priority queues
+- **State Reconciliation**: Consistent state across distributed system
+- **Dead Letter Queue**: Failed command tracking and retry
+- **Atomic File I/O**: Zero-corruption file operations (v73.0)
+- **Self-Heartbeat**: Liveness monitoring (v72.0)
+- **Circuit Breakers**: Fault tolerance with automatic recovery
+
+### 🔄 Event Streaming (v10.3)
+
+- **WebSocket Streaming**: Real-time event broadcasting
+- **Redis Pub/Sub**: Optional Redis backend for scale
+- **Event Deduplication**: Hash-based duplicate prevention
+- **Priority System**: Safety-critical event prioritization
+- **Safety Audit Trail**: Comprehensive action logging
+- **Cost Events**: Budget tracking with alerts
+- **Multi-Transport**: WebSocket, file-watching, Redis
+
+### ☁️ GCP Integration
+
+- **Spot VM Resilience**: Auto-resume from preemption
+- **Cloud SQL Storage**: Event and metric persistence
+- **GCS Checkpointing**: Distributed checkpoint storage
+- **Auto-Detection**: M1 local vs GCP remote environment detection
+
+---
+
+## 📦 Installation
 
 ### Quick Install (Python only, no C++ bindings)
+
 ```bash
 pip install reactor-core
 ```
 
 ### Build from Source (with MLForge C++ bindings)
+
 ```bash
 # Clone with submodules
 git clone --recursive https://github.com/drussell23/reactor-core.git
@@ -52,17 +266,40 @@ pip install pybind11 cmake
 pip install -e .
 ```
 
-### For Local Development (M1 Mac)
+### Environment-Specific Installation
+
 ```bash
+# For local development (M1 Mac)
 pip install reactor-core[local]
-```
 
-### For GCP Training (32GB VM)
-```bash
+# For GCP training (32GB+ VM)
 pip install reactor-core[gcp]
+
+# For full development (includes testing, linting, docs)
+pip install -e ".[dev]"
 ```
 
-## Quick Start
+### Docker Installation
+
+```bash
+# Build Docker image
+docker-compose build
+
+# Run API server
+docker-compose up api
+
+# Run model server
+docker-compose up model-server
+
+# Run unified supervisor
+docker-compose up supervisor
+```
+
+---
+
+## 🚀 Quick Start
+
+### Basic Training
 
 ```python
 from reactor_core import Trainer, TrainingConfig
@@ -78,636 +315,297 @@ config = TrainingConfig(
     gradient_checkpointing=True,
 )
 
-# Auto-detect environment
+# Auto-detect environment (M1 local vs GCP remote)
 trainer = Trainer(config)
 
-# Train (auto-resumes on GCP Spot preemption)
+# Train with auto-resume on Spot VM preemption
 trainer.train("./data/train.jsonl")
 ```
 
-## Environment Detection
-
-Reactor Core automatically detects your environment:
-
-| Environment | Mode | Features |
-|-------------|------|----------|
-| M1 Mac 16GB | Lightweight | Inference-only, quantized models |
-| GCP 32GB VM | Full Training | LoRA, DPO, FSDP, auto-resume |
-
-## GCP Spot VM Support
-
-Built-in checkpoint/resume for preemptible VMs:
+### Advanced Training with DPO
 
 ```python
-from reactor_core.gcp import SpotVMCheckpointer
-
-# Automatically saves checkpoints every N steps
-# Resumes from last checkpoint on VM restart
-trainer = Trainer(config, checkpointer=SpotVMCheckpointer(
-    checkpoint_interval=500,
-    gcs_bucket="gs://my-training-checkpoints"
-))
-```
-
-## Cross-Repository Event Streaming
-
-Reactor Core provides a sophisticated event bridge for real-time synchronization across the JARVIS ecosystem.
-
-### Event Bridge Architecture
-
-```python
-from reactor_core.integration import EventBridge, EventSource, EventType
-
-# Initialize event bridge
-bridge = EventBridge(
-    source=EventSource.REACTOR_CORE,
-    websocket_url="ws://localhost:8000/ws/events",
-    fallback_to_file=True,
-    redis_url="redis://localhost:6379"  # Optional
+from reactor_core.training.advanced_training import (
+    DPOTrainer,
+    DPOConfig,
+    PreferenceDataset,
 )
 
-# Subscribe to events from other services
-await bridge.subscribe([
-    EventType.INTERACTION_START,
-    EventType.TRAINING_START,
-    EventType.COST_UPDATE
-])
-
-# Emit events to other services
-await bridge.publish(
-    EventType.TRAINING_PROGRESS,
-    {"epoch": 2, "loss": 0.123, "progress": 0.67},
-    priority=2
+# Configure DPO
+dpo_config = DPOConfig(
+    model_name="llama-2-7b",
+    beta=0.1,  # KL divergence penalty
+    learning_rate=5e-7,
+    max_length=512,
+    batch_size=4,
 )
 
-# Listen for events
-async for event in bridge.listen():
-    print(f"Received: {event.event_type} from {event.source}")
-```
+# Initialize DPO trainer
+dpo_trainer = DPOTrainer(dpo_config)
 
-### Supported Event Types
-
-#### Training Events
-- `TRAINING_START`: Training pipeline initiated
-- `TRAINING_PROGRESS`: Epoch/batch progress updates
-- `TRAINING_COMPLETE`: Training successfully completed
-- `TRAINING_FAILED`: Training failed with error details
-
-#### Cost Tracking Events (v10.0+)
-- `COST_UPDATE`: Real-time cost updates from any service
-- `COST_ALERT`: Budget threshold exceeded
-- `COST_REPORT`: Periodic cost summaries
-- `INFERENCE_METRICS`: Token usage and API call metrics
-
-#### Infrastructure Events (v10.0+)
-- `RESOURCE_CREATED`: GCP resource provisioned
-- `RESOURCE_DESTROYED`: GCP resource terminated
-- `ORPHAN_DETECTED`: Unused resource identified
-- `ORPHAN_CLEANED`: Orphaned resource cleaned up
-- `SQL_STOPPED`/`SQL_STARTED`: Cloud SQL state changes
-
-#### Safety Events (v10.3+)
-- `SAFETY_AUDIT`: Action plan audited for safety risks
-- `SAFETY_BLOCKED`: High-risk action automatically blocked
-- `SAFETY_CONFIRMED`: User confirmed risky action
-- `SAFETY_DENIED`: User rejected risky action
-- `KILL_SWITCH_TRIGGERED`: Emergency halt activated
-- `VISUAL_CLICK_PREVIEW`: Click action previewed to user
-- `VISUAL_CLICK_VETOED`: Click cancelled during preview
-
-### Event Priority System
-
-Events are prioritized for training optimization:
-- **Priority 1 (Highest)**: Safety blocks, kill switch, critical errors
-- **Priority 2 (High)**: Safety audits, confirmations, cost alerts
-- **Priority 3 (Normal)**: Training progress, visual previews
-- **Priority 4 (Low)**: Informational events, metrics
-
-### Automatic Deduplication
-
-The event bridge prevents duplicate processing:
-```python
-# Events are deduplicated based on content hash
-# Duplicate events within 60 seconds are automatically filtered
-await bridge.publish(EventType.COST_UPDATE, {"total": 15.43})
-await bridge.publish(EventType.COST_UPDATE, {"total": 15.43})  # Deduplicated
-```
-
-## Vision Safety Integration
-
-Reactor Core v10.3+ provides comprehensive safety event tracking for vision-enabled AI actions.
-
-### Safety Event Emission
-
-```python
-from reactor_core.integration import EventBridge, EventSource
-
-bridge = EventBridge(source=EventSource.JARVIS_AGENT)
-
-# Emit safety audit when plan is generated
-await bridge.emit_safety_audit(
-    goal="Update production database schema",
-    plan_steps=5,
-    verdict="REQUIRES_CONFIRMATION",
-    risk_level="HIGH",
-    risky_steps=[
-        {
-            "step": 3,
-            "action": "DROP TABLE users",
-            "risk": "Data loss",
-            "severity": "CRITICAL"
-        }
-    ],
-    confirmation_required=True
-)
-
-# Emit when action is blocked
-await bridge.emit_safety_blocked(
-    action="rm -rf /",
-    reason="Destructive filesystem operation detected",
-    safety_tier="TIER_1_CRITICAL",
-    auto_blocked=True
-)
-
-# Emit user confirmation/denial
-await bridge.emit_safety_confirmation(
-    action="Delete 1,000 files in ~/Downloads",
-    risk_level="MEDIUM",
-    confirmed=True,
-    confirmation_method="voice",
-    user_response="yes, proceed"
-)
-
-# Emit kill switch activation
-await bridge.emit_kill_switch_triggered(
-    trigger_method="mouse_corner",
-    halted_action="Sending 500 emails",
-    response_time_ms=147.3
-)
-
-# Emit visual click preview/veto
-await bridge.emit_visual_click_event(
-    x=450,
-    y=320,
-    button="left",
-    vetoed=True,
-    preview_duration_ms=2500,
-    veto_reason="User moved mouse to kill corner"
+# Train on preference pairs
+await dpo_trainer.train(
+    preference_dataset=PreferenceDataset(
+        chosen_responses=chosen_data,
+        rejected_responses=rejected_data,
+    ),
+    num_epochs=3,
 )
 ```
 
-### Safety Audit Trail
-
-All safety events are logged with full context for training and analysis:
+### Model Serving with Hot Reload
 
 ```python
-# Query safety events from event history
-safety_events = await bridge.get_events_by_type([
-    EventType.SAFETY_AUDIT,
-    EventType.SAFETY_BLOCKED,
-    EventType.KILL_SWITCH_TRIGGERED
-], time_range="last_24h")
+from reactor_core.serving.model_server import ModelServer, ModelServerConfig
 
-# Analyze safety patterns
-for event in safety_events:
-    print(f"{event.timestamp}: {event.event_type}")
-    print(f"  Action: {event.data['action']}")
-    print(f"  Risk: {event.data.get('risk_level', 'N/A')}")
-    print(f"  Outcome: {event.data.get('verdict', 'N/A')}")
-```
-
-### Integration with JARVIS Computer Use
-
-Safety events are automatically emitted during computer use actions:
-
-```python
-# In JARVIS-AI-Agent with Computer Use
-from anthropic import Anthropic
-from reactor_core.integration import EventBridge
-
-client = Anthropic()
-bridge = EventBridge(source=EventSource.JARVIS_AGENT)
-
-# Before executing computer use action
-response = client.messages.create(
-    model="claude-3-7-sonnet-20250219",
-    tools=[computer_tool],
-    messages=[{"role": "user", "content": "Delete old files"}]
+# Configure model server
+config = ModelServerConfig(
+    models_dir="/path/to/models",
+    enable_hot_reload=True,
+    backend="vllm",  # or "transformers", "llamacpp", "mlx"
+    max_cached_models=3,
 )
 
-# Safety audit triggered automatically
-# User shown preview if action is risky
-# Event emitted: SAFETY_AUDIT, VISUAL_CLICK_PREVIEW, etc.
+# Initialize server
+server = ModelServer(config)
+await server.start()
 
-# If user cancels during preview
-await bridge.emit_visual_click_event(
-    x=100, y=200,
-    button="left",
-    vetoed=True,
-    preview_duration_ms=1500,
-    veto_reason="User moved cursor to kill corner"
+# Serve inference requests
+response = await server.predict(
+    prompt="What is machine learning?",
+    model_id="llama-2-7b",
+    max_tokens=256,
 )
+print(response.text)
+
+# Hot-reload: Just update the model file, server auto-reloads!
 ```
 
-## Cost Tracking Integration
-
-Unified cost tracking across all JARVIS repositories.
-
-### Cost Bridge Usage
-
-```python
-from reactor_core.integration import CostBridge
-
-# Initialize cost bridge
-cost_bridge = CostBridge(
-    event_bridge=bridge,
-    budget_limit=100.0,  # $100 daily budget
-    alert_threshold=0.8  # Alert at 80% of budget
-)
-
-# Automatic cost tracking for training
-async with cost_bridge.track_training("lora-fine-tune"):
-    trainer.train()  # Costs automatically tracked
-
-# Query current costs
-daily_cost = await cost_bridge.get_daily_cost()
-print(f"Today's spend: ${daily_cost:.2f}")
-
-# Get cost breakdown by service
-breakdown = await cost_bridge.get_cost_breakdown()
-for service, cost in breakdown.items():
-    print(f"{service}: ${cost:.2f}")
-```
-
-### Automatic Budget Alerts
-
-```python
-# Budget alerts emitted automatically
-@bridge.on_event(EventType.COST_ALERT)
-async def handle_cost_alert(event):
-    print(f"⚠️  Budget Alert: ${event.data['current']:.2f} / ${event.data['limit']:.2f}")
-    print(f"Threshold: {event.data['percentage']:.1f}%")
-
-    # Optionally pause training
-    if event.data['percentage'] > 95:
-        await trainer.pause()
-```
-
-## REST API Server
-
-Reactor Core provides a FastAPI server for external integrations.
-
-### Starting the API Server
+### API Server & Scheduler
 
 ```bash
-# Start with uvicorn
+# Start API server
 uvicorn reactor_core.api.server:app --host 0.0.0.0 --port 8003 --reload
-
-# Or use the module directly
-python -m reactor_core.api.server
 ```
 
-### API Endpoints
+```python
+import requests
 
-#### Health Check
+# Trigger training via API
+response = requests.post(
+    "http://localhost:8003/training/trigger",
+    json={
+        "model_name": "llama-2-7b",
+        "training_type": "dpo",
+        "config": {
+            "num_epochs": 3,
+            "batch_size": 4,
+            "learning_rate": 5e-7,
+        },
+    },
+)
+
+# Schedule nightly training
+response = requests.post(
+    "http://localhost:8003/scheduler/schedule",
+    json={
+        "name": "nightly_dpo_training",
+        "schedule_type": "cron",
+        "cron_expression": "0 2 * * *",  # 2 AM daily
+        "job_config": {
+            "training_type": "dpo",
+            "model_name": "llama-2-7b",
+        },
+    },
+)
+```
+
+### Trinity Orchestrator (Multi-Repo Coordination)
+
+```python
+from reactor_core.orchestration.trinity_orchestrator import (
+    initialize_orchestrator,
+    get_orchestrator,
+)
+
+# Initialize orchestrator
+orchestrator = await initialize_orchestrator()
+
+# Dispatch command to JARVIS/Prime
+await orchestrator.dispatch_command(
+    intent="start_surveillance",
+    payload={
+        "app_name": "Chrome",
+        "trigger_text": "bouncing ball",
+    },
+    target_components=["jarvis"],
+)
+
+# Check component health
+health = await orchestrator.get_health_status()
+print(f"JARVIS: {health['jarvis'].status}")
+print(f"Prime: {health['prime'].status}")
+print(f"Reactor: {health['reactor'].status}")
+```
+
+### Unified Supervisor (One-Command Startup)
+
 ```bash
-GET /health
+# Start entire AGI OS ecosystem
+python3 run_supervisor.py
+
+# With specific components
+python3 run_supervisor.py --components jarvis,prime,reactor
+
+# Development mode (verbose logging)
+python3 run_supervisor.py --dev --log-level DEBUG
 ```
 
-#### Trigger Training
-```bash
-POST /training/trigger
-{
-  "model_name": "llama-2-7b",
-  "training_type": "lora",
-  "config": {
-    "num_epochs": 3,
-    "batch_size": 4,
-    "learning_rate": 2e-4
-  }
-}
-```
+---
 
-#### Submit Experience Log
-```bash
-POST /experience/submit
-{
-  "interaction_id": "uuid-here",
-  "user_message": "Fix the authentication bug",
-  "assistant_response": "I'll fix that...",
-  "outcome": "success",
-  "metadata": {
-    "tokens_used": 1234,
-    "model": "claude-3-7-sonnet"
-  }
-}
-```
+## 🔬 Advanced Features
 
-#### Get JARVIS Status
-```bash
-GET /jarvis/status
-```
+### Advanced Training Methods (v76.0)
 
-Response:
-```json
-{
-  "broadcaster_active": true,
-  "uptime_seconds": 3847.2,
-  "last_interaction": "2025-12-25T10:30:45Z",
-  "event_bridge_connected": true,
-  "pending_events": 3
-}
-```
+Comprehensive documentation for DPO, RLHF, Constitutional AI, Curriculum Learning with code examples for memory management, experience replay, and multi-GPU training.
 
-## Features
+### Async Infrastructure (v76.1)
 
-### Core Training Features
-- **PyTorch-First**: Full PyTorch compatibility
-- **LoRA/QLoRA**: Memory-efficient fine-tuning
-- **DPO Support**: Direct Preference Optimization
-- **FSDP**: Fully Sharded Data Parallel for large models
-- **Resume Training**: Auto-resume from checkpoints
-- **Async-Safe**: Non-blocking training loops
-- **C++ Acceleration**: Optional MLForge backend for speed
+Production-ready async patterns including circuit breakers, backpressure management, dead letter queues, health monitoring, and adaptive rate limiting.
 
-### Integration & Event Streaming (v10.0+)
-- **Cross-Repository Events**: Real-time event synchronization across JARVIS ecosystem
-- **WebSocket Streaming**: Low-latency event broadcasting
-- **Event Deduplication**: Prevents duplicate event processing
-- **Automatic Reconnection**: Resilient connections with exponential backoff
-- **Multi-Transport Support**: WebSocket, file-based watching, Redis pub/sub
-- **Cost Tracking**: Unified cost analytics across all repos with budget alerts
-- **Infrastructure Events**: Resource lifecycle tracking and orphan detection
+### API Server & Telemetry (v77.0)
 
-### Vision Safety Integration (v10.3+)
-- **Safety Audit Trail**: Comprehensive logging of all safety decisions
-- **Action Blocking**: Automatic blocking of high-risk actions
-- **User Confirmation**: Multi-factor confirmation for risky operations
-- **Kill Switch**: Dead man's switch for emergency halts
-- **Visual Click Previews**: Pre-execution click verification
-- **Veto Mechanism**: Real-time action cancellation with preview window
+FastAPI server with telemetry collection, Night Shift scheduling, model registry, health aggregation, and real-time WebSocket streaming.
 
-## Version History
+### Model Serving & Hot Reload (v77.1)
 
-### **v10.3** - Vision Safety Integration (Current)
-- Added comprehensive safety event types for vision-enabled AI
-- Safety audit trail with `SAFETY_AUDIT`, `SAFETY_BLOCKED`, `SAFETY_CONFIRMED`, `SAFETY_DENIED`
-- Kill switch mechanism with `KILL_SWITCH_TRIGGERED` event
-- Visual click preview and veto system (`VISUAL_CLICK_PREVIEW`, `VISUAL_CLICK_VETOED`)
-- Convenience methods for all safety event emissions
-- Priority-based event processing for safety-critical events
+Zero-downtime model serving with hot-reload, multi-backend support (vLLM, llama.cpp, MLX, Transformers), LRU caching, and semantic response caching.
 
-### **v10.0** - Cross-Repository Integration
-- Real-time event streaming across JARVIS ecosystem
-- WebSocket-based event bridge with auto-reconnection
-- Unified cost tracking with budget alerts
-- Infrastructure lifecycle events (resources, orphans, SQL)
-- Multi-transport support (WebSocket, file-based, Redis)
-- Event deduplication and priority system
-- REST API server for external integrations
-- JARVIS connector for bidirectional communication
-- Prime connector for training pipeline integration
+### Trinity Orchestrator (v75.0)
 
-### **v1.0.0** - Initial Release
-- PyTorch-first ML training framework
-- LoRA/QLoRA memory-efficient fine-tuning
-- DPO (Direct Preference Optimization) support
-- FSDP for large model training
-- GCP Spot VM resilience with auto-checkpointing
-- MLForge C++ core integration
-- Environment-aware compute (M1 local vs GCP remote)
+Multi-repo coordination with heartbeat monitoring, command routing, state reconciliation, dead letter queue, and atomic file I/O.
 
-## Integration Architecture
+*(See full documentation in sections below)*
+
+---
+
+## 🔗 Integration Architecture
 
 ### JARVIS Ecosystem Integration
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    JARVIS Ecosystem                          │
-├─────────────────────────────────────────────────────────────┤
-│                                                               │
-│  ┌──────────────┐         ┌──────────────┐                  │
-│  │ JARVIS Agent │◄───────►│ JARVIS Prime │                  │
-│  │  (Claude)    │  Events │  (Training)  │                  │
-│  └──────┬───────┘         └──────┬───────┘                  │
-│         │                        │                           │
-│         │     Event Bridge       │                           │
-│         │   (WebSocket/Redis)    │                           │
-│         │                        │                           │
-│  ┌──────▼────────────────────────▼───────┐                  │
-│  │        Reactor Core                   │                  │
-│  │  ┌─────────────────────────────────┐  │                  │
-│  │  │   Event Bridge Core             │  │                  │
-│  │  │   - Safety Events               │  │                  │
-│  │  │   - Cost Tracking               │  │                  │
-│  │  │   - Infrastructure Events       │  │                  │
-│  │  │   - Training Events              │  │                  │
-│  │  └─────────────────────────────────┘  │                  │
-│  │                                        │                  │
-│  │  ┌─────────────┐   ┌──────────────┐  │                  │
-│  │  │  REST API   │   │  MLForge C++ │  │                  │
-│  │  │  Server     │   │  Engine      │  │                  │
-│  │  └─────────────┘   └──────────────┘  │                  │
-│  └────────────────────────────────────────┘                  │
-│                                                               │
-│         ▼                        ▼                            │
-│  ┌──────────────┐         ┌──────────────┐                  │
-│  │  Cloud SQL   │         │  GCP Storage │                  │
-│  │  (Events DB) │         │ (Checkpoints)│                  │
-│  └──────────────┘         └──────────────┘                  │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                       JARVIS AGI ECOSYSTEM                           │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  ┌──────────────────┐          ┌──────────────────┐                 │
+│  │  JARVIS-AI-Agent │◄────────►│  JARVIS Prime    │                 │
+│  │  (Claude Body)   │  Events  │  (LLM Mind)      │                 │
+│  │                  │          │                  │                 │
+│  │ • Computer Use   │          │ • Local LLM      │                 │
+│  │ • macOS Control  │          │ • Reasoning      │                 │
+│  │ • Voice Auth     │          │ • Context        │                 │
+│  └─────────┬────────┘          └─────────┬────────┘                 │
+│            │                              │                          │
+│            │         Event Bridge         │                          │
+│            │      (WebSocket/Redis)       │                          │
+│            │                              │                          │
+│  ┌─────────▼──────────────────────────────▼────────┐                 │
+│  │            Reactor Core (Nervous System)        │                 │
+│  │  ┌──────────────────────────────────────────┐   │                 │
+│  │  │         Trinity Orchestrator             │   │                 │
+│  │  │  • Heartbeat monitoring                  │   │                 │
+│  │  │  • Command routing                       │   │                 │
+│  │  │  • State reconciliation                  │   │                 │
+│  │  └──────────────────────────────────────────┘   │                 │
+│  │                                                  │                 │
+│  │  ┌──────────────────────────────────────────┐   │                 │
+│  │  │         Training & Serving               │   │                 │
+│  │  │  • DPO, RLHF, Constitutional AI          │   │                 │
+│  │  │  • Hot-reload model server               │   │                 │
+│  │  │  • Night Shift scheduler                 │   │                 │
+│  │  └──────────────────────────────────────────┘   │                 │
+│  │                                                  │                 │
+│  │  ┌──────────────────────────────────────────┐   │                 │
+│  │  │         Event Streaming                  │   │                 │
+│  │  │  • Safety audit trail                    │   │                 │
+│  │  │  • Cost tracking                         │   │                 │
+│  │  │  • Telemetry collection                  │   │                 │
+│  │  └──────────────────────────────────────────┘   │                 │
+│  └──────────────────────────────────────────────────┘                 │
+│                                                                      │
+│            ▼                             ▼                           │
+│  ┌──────────────────┐         ┌──────────────────┐                  │
+│  │   Cloud SQL      │         │   GCP Storage    │                  │
+│  │   (Events DB)    │         │  (Checkpoints)   │                  │
+│  └──────────────────┘         └──────────────────┘                  │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-### Event Flow Example
+---
 
-```
-User: "Delete old logs" (to JARVIS Agent)
-    │
-    ▼
-JARVIS Agent generates plan with Computer Use
-    │
-    ▼
-Safety Audit triggered
-    │
-    ├─► Reactor Core: SAFETY_AUDIT event emitted
-    │   └─► Stored in Cloud SQL for training
-    │
-    ├─► Risk detected: HIGH (bulk file deletion)
-    │
-    ▼
-User confirmation required
-    │
-    ├─► Visual preview shown (VISUAL_CLICK_PREVIEW event)
-    │
-User confirms or denies
-    │
-    ├─► SAFETY_CONFIRMED or SAFETY_DENIED event
-    │   └─► Training data captured for learning
-    │
-    ▼
-Action executed (if confirmed)
-    │
-    └─► All events synced across JARVIS ecosystem
-```
+## 📈 Version History
 
-## Use Cases
+### **v77.1** - Model Serving & Hot Reload (2025-01-07)
+- Hot-reload model server with zero-downtime updates (1,545 lines)
+- Multi-backend inference engine: vLLM, llama.cpp, MLX, Transformers (1,891 lines)
+- Unified supervisor for one-command AGI OS startup (1,635 lines)
+- LRU model cache with memory-aware eviction
+- Priority request queue for SLA compliance
+- Semantic response caching with hash-based deduplication
 
-### 1. Real-Time Safety Monitoring
-Monitor all AI actions across your JARVIS ecosystem with comprehensive audit trails:
+### **v77.0** - Advanced API Server (2025-01-07)
+- Telemetry collection system with WebSocket streaming (1,128 lines)
+- Night Shift scheduler for automated training (1,030 lines)
+- Model registry with versioning and A/B testing (1,301 lines)
+- Health aggregator with multi-service dashboard (999 lines)
+- Enhanced FastAPI server (2,252 lines)
 
-```python
-# In JARVIS Agent
-await bridge.emit_safety_audit(
-    goal="Update system configurations",
-    plan_steps=8,
-    verdict="SAFE_WITH_MONITORING",
-    risk_level="MEDIUM",
-    risky_steps=[],
-    confirmation_required=False
-)
+### **v76.1** - Async Infrastructure (2025-01-07)
+- Advanced async patterns library (1,746 lines)
+- Circuit breaker, backpressure, bulkhead patterns
+- Dead letter queue, health monitor, adaptive rate limiter
+- Dependency injection system (913 lines)
 
-# In Reactor Core (receives event automatically)
-# Event stored in database for analysis and training
-```
+### **v76.0** - Advanced Training Methods (2025-01-07)
+- DPO, RLHF, Constitutional AI, Curriculum Learning (2,899 lines)
+- Memory manager with dynamic batch sizing
+- Advanced evaluation suite (1,536 lines)
 
-### 2. Multi-Repository Cost Optimization
-Track costs across all services with unified budgets:
+### **v75.0** - Trinity Dead Letter Queue (2024-12-25)
+- DLQ for failed/expired commands
+- Automatic retry with exponential backoff
 
-```python
-# JARVIS Agent tracks inference costs
-await bridge.publish(EventType.COST_UPDATE, {
-    "service": "claude-api",
-    "amount": 0.47,
-    "tokens": 1834
-})
+### **v73.0** - Atomic File I/O (2024-11-15)
+- Zero-corruption file operations via atomic renames
 
-# JARVIS Prime tracks training costs
-await bridge.publish(EventType.COST_UPDATE, {
-    "service": "gcp-compute",
-    "amount": 2.15,
-    "duration_minutes": 47
-})
+### **v10.3** - Vision Safety Integration (2024-10-20)
+- Safety audit trail and kill switch mechanism
 
-# Reactor Core aggregates and alerts
-# Alert triggered at 80% of $100 daily budget
-```
+### **v10.0** - Cross-Repository Integration (2024-10-01)
+- Real-time event streaming across JARVIS ecosystem
 
-### 3. Training from Safety Events
-Use safety decision history to improve AI behavior:
+### **v1.0.0** - Initial Release (2024-09-01)
+- PyTorch-first ML training framework
+- LoRA/QLoRA, DPO, FSDP support
+- GCP Spot VM resilience
 
-```python
-# Query safety events for training
-safety_data = await bridge.get_events_by_type([
-    EventType.SAFETY_CONFIRMED,
-    EventType.SAFETY_DENIED
-], time_range="last_30_days")
+---
 
-# Extract user preferences
-for event in safety_data:
-    if event.data["confirmed"]:
-        # User accepted this action - train as positive example
-        training_examples.append({
-            "action": event.data["action"],
-            "risk_level": event.data["risk_level"],
-            "user_decision": "approved"
-        })
-```
+## 🔗 Links
 
-### 4. Emergency Kill Switch Integration
-Implement dead man's switch across all services:
-
-```python
-# In JARVIS Agent computer use wrapper
-@on_mouse_corner_trigger
-async def emergency_halt():
-    await bridge.emit_kill_switch_triggered(
-        trigger_method="mouse_corner",
-        halted_action=current_action,
-        response_time_ms=time_since_trigger
-    )
-
-    # Kill switch event propagates to all services
-    # All in-progress actions halted immediately
-```
-
-## Environment Variables
-
-```bash
-# Reactor Core Configuration
-REACTOR_CORE_HOST=0.0.0.0
-REACTOR_CORE_PORT=8003
-
-# Event Bridge Configuration
-EVENT_BRIDGE_WS_URL=ws://localhost:8000/ws/events
-EVENT_BRIDGE_REDIS_URL=redis://localhost:6379  # Optional
-EVENT_BRIDGE_FALLBACK_FILE=/tmp/events.jsonl
-
-# JARVIS Integration
-JARVIS_API_URL=http://localhost:8000
-JARVIS_PRIME_URL=http://localhost:8001
-
-# Cost Tracking
-COST_DAILY_BUDGET=100.0
-COST_ALERT_THRESHOLD=0.8
-
-# GCP Configuration
-GCP_PROJECT_ID=jarvis-473803
-GCS_CHECKPOINT_BUCKET=gs://jarvis-training-checkpoints
-
-# Safety Configuration
-SAFETY_AUDIT_ENABLED=true
-SAFETY_PREVIEW_DURATION_MS=2000
-KILL_SWITCH_ENABLED=true
-```
-
-## Development
-
-### Running Tests
-
-```bash
-# Install dev dependencies
-pip install -e ".[dev]"
-
-# Run all tests
-pytest
-
-# Run integration tests
-pytest tests/integration/
-
-# Run safety event tests
-pytest tests/integration/test_event_bridge.py -k safety
-```
-
-### Building MLForge C++ Bindings
-
-```bash
-# Build C++ extensions
-cd mlforge
-mkdir build && cd build
-cmake ..
-make -j$(nproc)
-
-# Install Python bindings
-cd ../..
-pip install -e .
-```
-
-## License
-
-MIT License
-
-## Links
-
+- **GitHub**: https://github.com/drussell23/reactor-core
 - **MLForge C++ Core**: https://github.com/drussell23/MLForge
-- **JARVIS Prime**: https://github.com/drussell23/jarvis-prime (uses Reactor Core)
-- **JARVIS-AI-Agent**: https://github.com/drussell23/jarvis-ai-agent (integrates with Reactor Core)
+- **JARVIS-AI-Agent**: https://github.com/drussell23/JARVIS-AI-Agent
+- **JARVIS Prime**: https://github.com/drussell23/jarvis-prime
 
-## Contributing
+---
 
-Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+## 📄 License
 
-## Support
+MIT License - See [LICENSE](LICENSE) file for details.
 
-For issues and questions:
-- **GitHub Issues**: https://github.com/drussell23/reactor-core/issues
-- **Documentation**: See `/docs` folder for detailed guides
+---
+
+**Built with ❤️ for the JARVIS AGI Ecosystem**
