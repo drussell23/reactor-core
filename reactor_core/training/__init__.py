@@ -1,11 +1,20 @@
 """
-Training modules for Night Shift Training Engine.
+Training modules for Night Shift Training Engine - Reactor Core (Nervous System)
+==================================================================================
 
 Provides:
 - AsyncTrainer with full HuggingFace/TRL integration
 - LoRA/QLoRA configuration and application
 - Training callbacks for progress tracking
 - Gradient checkpointing and memory optimization
+
+ADVANCED TRAINING (v76.0):
+- DPO (Direct Preference Optimization)
+- RLHF (Reinforcement Learning from Human Feedback)
+- Constitutional AI training
+- FSDP (Fully Sharded Data Parallel)
+- Curriculum Learning
+- Experience Buffer for continuous learning
 """
 
 # Core trainer
@@ -16,6 +25,44 @@ from reactor_core.training.trainer import (
     TrainingProgress,
     TrainingResult,
     TrainingState,
+)
+
+# Advanced training methods
+from reactor_core.training.advanced_training import (
+    # Enums
+    TrainingMethod,
+    SafetyTier,
+    CurriculumStrategy,
+    ExperiencePriority,
+    # Data structures
+    PreferencePair,
+    Experience,
+    TrainingBatch,
+    TrainingMetrics,
+    # Experience Buffer
+    ExperienceBuffer,
+    # DPO
+    DPOConfig,
+    DPOTrainer,
+    # RLHF
+    RLHFConfig,
+    RewardModel,
+    PPOTrainer,
+    RLHFPipeline,
+    # Constitutional AI
+    ConstitutionalPrinciple,
+    ConstitutionalAITrainer,
+    DEFAULT_CONSTITUTIONAL_PRINCIPLES,
+    # Curriculum Learning
+    CurriculumConfig,
+    DifficultyScorer,
+    CurriculumScheduler,
+    # FSDP
+    FSDPConfig,
+    FSDPWrapper,
+    # Unified Trainer
+    AdvancedTrainingConfig,
+    AdvancedTrainer,
 )
 
 # Callbacks
@@ -110,4 +157,39 @@ __all__ = [
     "format_params",
     "create_optimal_lora_config",
     "TARGET_MODULES_MAP",
+    # === ADVANCED TRAINING (v76.0) ===
+    # Training Method Enums
+    "TrainingMethod",
+    "SafetyTier",
+    "CurriculumStrategy",
+    "ExperiencePriority",
+    # Data Structures
+    "PreferencePair",
+    "Experience",
+    "TrainingBatch",
+    "TrainingMetrics",
+    # Experience Buffer
+    "ExperienceBuffer",
+    # DPO
+    "DPOConfig",
+    "DPOTrainer",
+    # RLHF
+    "RLHFConfig",
+    "RewardModel",
+    "PPOTrainer",
+    "RLHFPipeline",
+    # Constitutional AI
+    "ConstitutionalPrinciple",
+    "ConstitutionalAITrainer",
+    "DEFAULT_CONSTITUTIONAL_PRINCIPLES",
+    # Curriculum Learning
+    "CurriculumConfig",
+    "DifficultyScorer",
+    "CurriculumScheduler",
+    # FSDP
+    "FSDPConfig",
+    "FSDPWrapper",
+    # Unified Trainer
+    "AdvancedTrainingConfig",
+    "AdvancedTrainer",
 ]
