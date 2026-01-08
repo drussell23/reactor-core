@@ -45,6 +45,27 @@ from reactor_core.config.trinity_config import (
     get_retry_delay,
 )
 
+from reactor_core.config.distributed_config import (
+    # Enums
+    ConfigEnvironment,
+    ConfigChangeType,
+    SyncStrategy,
+    # Data structures
+    ConfigVersion,
+    ConfigChangeEvent,
+    ServiceConfig,
+    # Storage
+    ConfigStore,
+    # Manager
+    DistributedConfigManager,
+    # Validation
+    ConfigValidator,
+    # Loader
+    EnvironmentConfigLoader,
+    # Utilities
+    create_distributed_config_manager,
+)
+
 __all__ = [
     # Base configs
     "BaseConfig",
@@ -76,4 +97,16 @@ __all__ = [
     "sleep_with_jitter",
     "async_sleep_with_jitter",
     "get_retry_delay",
+    # Distributed config
+    "ConfigEnvironment",
+    "ConfigChangeType",
+    "SyncStrategy",
+    "ConfigVersion",
+    "ConfigChangeEvent",
+    "ServiceConfig",
+    "ConfigStore",
+    "DistributedConfigManager",
+    "ConfigValidator",
+    "EnvironmentConfigLoader",
+    "create_distributed_config_manager",
 ]

@@ -181,6 +181,67 @@ from reactor_core.training.causal_reasoning import (
     evaluate_causal_graph,
 )
 
+# FSDP Training (v81.0)
+from reactor_core.training.fsdp_training import (
+    # Enums
+    FSDPShardingStrategy,
+    FSDPMixedPrecisionPolicy,
+    FSDPBackwardPrefetch,
+    FSDPStateDictType,
+    # Config
+    FSDPConfig as FSDPTrainingConfig,
+    # Trainer
+    FSDPTrainer,
+    # Utilities
+    apply_fsdp_wrapping,
+)
+
+# Federated Learning (v81.0)
+from reactor_core.training.federated_learning import (
+    # Enums
+    AggregationStrategy,
+    ClientSelectionStrategy,
+    # Data structures
+    ClientUpdate,
+    AggregationResult,
+    FederatedMetrics,
+    # Config
+    FederatedConfig,
+    # Server & Client
+    FederatedServer,
+    FederatedClient,
+    # Utilities
+    create_federated_setup,
+)
+
+# Cognitive Modules (v81.0)
+from reactor_core.training.cognitive_modules import (
+    # Enums
+    CognitiveModuleType,
+    PlanningStrategy,
+    ReasoningType,
+    MemoryType,
+    # Data structures
+    CognitiveState,
+    CognitiveModuleConfig,
+    TrainingBatch as CognitiveTrainingBatch,
+    # Base module
+    BaseCognitiveModule,
+    CognitiveLayer,
+    # Specialized modules
+    PlanningModule,
+    ReasoningModule,
+    MemoryModule,
+    PerceptionModule,
+    # Orchestrator
+    CognitiveOrchestrator,
+    # Training
+    CognitiveTrainingConfig,
+    CognitiveModuleTrainer,
+    # Utilities
+    create_cognitive_system,
+)
+
 __all__ = [
     # Trainer
     "Trainer",
@@ -317,4 +378,56 @@ __all__ = [
     # Evaluation
     "CausalEvaluationMetrics",
     "evaluate_causal_graph",
+    # === FSDP TRAINING (v81.0) ===
+    # Enums
+    "FSDPShardingStrategy",
+    "FSDPMixedPrecisionPolicy",
+    "FSDPBackwardPrefetch",
+    "FSDPStateDictType",
+    # Config
+    "FSDPTrainingConfig",
+    # Trainer
+    "FSDPTrainer",
+    # Utilities
+    "apply_fsdp_wrapping",
+    # === FEDERATED LEARNING (v81.0) ===
+    # Enums
+    "AggregationStrategy",
+    "ClientSelectionStrategy",
+    # Data structures
+    "ClientUpdate",
+    "AggregationResult",
+    "FederatedMetrics",
+    # Config
+    "FederatedConfig",
+    # Server & Client
+    "FederatedServer",
+    "FederatedClient",
+    # Utilities
+    "create_federated_setup",
+    # === COGNITIVE MODULES (v81.0) ===
+    # Enums
+    "CognitiveModuleType",
+    "PlanningStrategy",
+    "ReasoningType",
+    "MemoryType",
+    # Data structures
+    "CognitiveState",
+    "CognitiveModuleConfig",
+    "CognitiveTrainingBatch",
+    # Base module
+    "BaseCognitiveModule",
+    "CognitiveLayer",
+    # Specialized modules
+    "PlanningModule",
+    "ReasoningModule",
+    "MemoryModule",
+    "PerceptionModule",
+    # Orchestrator
+    "CognitiveOrchestrator",
+    # Training
+    "CognitiveTrainingConfig",
+    "CognitiveModuleTrainer",
+    # Utilities
+    "create_cognitive_system",
 ]

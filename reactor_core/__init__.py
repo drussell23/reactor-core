@@ -31,6 +31,12 @@ ADVANCED DATA PROCESSING (v80.0):
 - Contamination detection
 - Format normalization
 
+ULTIMATE SCALE (v81.0):
+- FSDP (Fully Sharded Data Parallel) - Multi-GPU/multi-node training
+- Federated Learning - Cross-repo distributed training with Byzantine-robust aggregation
+- Cognitive Modules - Specialized training for Planning, Reasoning, Memory, Perception modules
+- Cognitive Orchestrator - Coordinate multiple cognitive modules for complex AGI behaviors
+
 TRINITY INTEGRATION:
 - Cross-repo communication (JARVIS ↔ Prime ↔ Reactor)
 - Event-driven coordination
@@ -38,7 +44,7 @@ TRINITY INTEGRATION:
 - Unified supervisor for single-command startup
 """
 
-__version__ = "2.2.0"  # v80.0 - Advanced Data + World Models + Causal Reasoning
+__version__ = "2.3.0"  # v81.0 - Phase 3: FSDP + Federated Learning + Cognitive Modules
 
 # Core training
 from reactor_core.training import (
@@ -257,6 +263,44 @@ from reactor_core.integration import (
     create_event_bridge,
 )
 
+# === PHASE 3 - ULTIMATE SCALE (v81.0) ===
+
+# FSDP Training (v81.0)
+from reactor_core.training import (
+    FSDPShardingStrategy,
+    FSDPMixedPrecisionPolicy,
+    FSDPTrainingConfig,
+    FSDPTrainer,
+    apply_fsdp_wrapping,
+)
+
+# Federated Learning (v81.0)
+from reactor_core.training import (
+    AggregationStrategy,
+    ClientSelectionStrategy,
+    FederatedConfig,
+    FederatedServer,
+    FederatedClient,
+    create_federated_setup,
+)
+
+# Cognitive Modules (v81.0)
+from reactor_core.training import (
+    CognitiveModuleType,
+    PlanningStrategy,
+    ReasoningType,
+    MemoryType,
+    CognitiveModuleConfig,
+    BaseCognitiveModule,
+    PlanningModule,
+    ReasoningModule,
+    MemoryModule,
+    PerceptionModule,
+    CognitiveOrchestrator,
+    CognitiveModuleTrainer,
+    create_cognitive_system,
+)
+
 __all__ = [
     # Version
     "__version__",
@@ -426,4 +470,32 @@ __all__ = [
     "get_trinity_connector",
     "EventBridge",
     "create_event_bridge",
+    # === PHASE 3 - ULTIMATE SCALE (v81.0) ===
+    # FSDP Training
+    "FSDPShardingStrategy",
+    "FSDPMixedPrecisionPolicy",
+    "FSDPTrainingConfig",
+    "FSDPTrainer",
+    "apply_fsdp_wrapping",
+    # Federated Learning
+    "AggregationStrategy",
+    "ClientSelectionStrategy",
+    "FederatedConfig",
+    "FederatedServer",
+    "FederatedClient",
+    "create_federated_setup",
+    # Cognitive Modules
+    "CognitiveModuleType",
+    "PlanningStrategy",
+    "ReasoningType",
+    "MemoryType",
+    "CognitiveModuleConfig",
+    "BaseCognitiveModule",
+    "PlanningModule",
+    "ReasoningModule",
+    "MemoryModule",
+    "PerceptionModule",
+    "CognitiveOrchestrator",
+    "CognitiveModuleTrainer",
+    "create_cognitive_system",
 ]
