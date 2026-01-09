@@ -51,7 +51,7 @@ TRINITY INTEGRATION:
 - Unified supervisor for single-command startup
 """
 
-__version__ = "2.5.0"  # v83.0 - Unified Model Management: Intelligence Orchestration
+__version__ = "2.6.0"  # v85.0 - Unified Coordination: Trinity Nervous System
 
 # Core training
 from reactor_core.training import (
@@ -385,6 +385,26 @@ from reactor_core.serving import (
     create_trinity_registry,
 )
 
+# === UNIFIED COORDINATION (v85.0) ===
+
+# Unified State Coordinator - Cross-repo coordination nervous system
+from reactor_core.integration import (
+    UnifiedStateCoordinator,
+    get_unified_coordinator,
+    cleanup_stale_state,
+    ComponentType as CoordComponentType,
+    EntryPoint as CoordEntryPoint,
+    CoordinationState,
+    CoordinatorEventType,
+    ProcessSignature,
+    ComponentOwnership,
+    CoordinationEvent,
+    SharedMemoryLayer,
+    UnixSocketEventBus,
+    ConsensusProtocol,
+    TrinityEntryPointDetector,
+)
+
 __all__ = [
     # Version
     "__version__",
@@ -639,4 +659,19 @@ __all__ = [
     "SyncEvent",
     "TrinityModelRegistry",
     "create_trinity_registry",
+    # === UNIFIED COORDINATION (v85.0) ===
+    "UnifiedStateCoordinator",
+    "get_unified_coordinator",
+    "cleanup_stale_state",
+    "CoordComponentType",
+    "CoordEntryPoint",
+    "CoordinationState",
+    "CoordinatorEventType",
+    "ProcessSignature",
+    "ComponentOwnership",
+    "CoordinationEvent",
+    "SharedMemoryLayer",
+    "UnixSocketEventBus",
+    "ConsensusProtocol",
+    "TrinityEntryPointDetector",
 ]

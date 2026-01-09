@@ -86,6 +86,29 @@ from reactor_core.integration.trinity_bridge import (
     PriorityEventQueue,
 )
 
+# PROJECT TRINITY: Unified State Coordinator (v85.0)
+from reactor_core.integration.unified_coordinator import (
+    # Core Coordinator
+    UnifiedStateCoordinator,
+    get_unified_coordinator,
+    cleanup_stale_state,
+    # Enums
+    ComponentType,
+    EntryPoint,
+    CoordinationState,
+    EventType as CoordinatorEventType,
+    # Data Classes
+    ProcessSignature,
+    ComponentOwnership,
+    CoordinationEvent,
+    # Coordination Layers
+    SharedMemoryLayer,
+    UnixSocketEventBus,
+    ConsensusProtocol,
+    # Detector
+    TrinityEntryPointDetector,
+)
+
 __all__ = [
     # JARVIS-AI-Agent
     "JARVISConnector",
@@ -147,4 +170,19 @@ __all__ = [
     "CircuitBreaker",
     "BloomFilter",
     "PriorityEventQueue",
+    # PROJECT TRINITY: Unified State Coordinator (v85.0)
+    "UnifiedStateCoordinator",
+    "get_unified_coordinator",
+    "cleanup_stale_state",
+    "ComponentType",
+    "EntryPoint",
+    "CoordinationState",
+    "CoordinatorEventType",
+    "ProcessSignature",
+    "ComponentOwnership",
+    "CoordinationEvent",
+    "SharedMemoryLayer",
+    "UnixSocketEventBus",
+    "ConsensusProtocol",
+    "TrinityEntryPointDetector",
 ]
